@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     setError(""); // Reset error
     try {
-      const res = await axios.post("http://127.0.0.1:8000/accounts/login/", {
+      const res = await axios.post("https://storevisitdjangoproject-demo-task.onrender.com/accounts/login/", {
         email,
         password,
       });
