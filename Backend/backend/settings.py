@@ -31,8 +31,12 @@ ALLOWED_HOSTS = [
 
 
 # Application definition
+# In settings.py
 INSTALLED_APPS = [
-    # Default Django apps
+    # YOUR LOCAL APP MUST BE AT THE TOP
+    "accounts.apps.AccountsConfig",
+
+    # RE-ENABLE THE DEFAULT DJANGO APPS
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,13 +44,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Third-party
+    # Third-party apps
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
- "django_extensions",
-    # Local apps
-    "accounts",
+    "django_extensions", # <-- RE-ENABLE THIS AS WELL
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True 

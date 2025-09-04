@@ -1,10 +1,25 @@
+# THIS LINE IS CRUCIAL
 from django.urls import path
-from .views import RegisterView, EmailTokenObtainPairView, EmployeeStoresView
-from rest_framework_simplejwt.views import TokenRefreshView
+
+from .views import (
+    RegisterView,
+    EmailTokenObtainPairView,
+    EmployeeStoresView,
+    CreateActivityView,
+    TodaysActivitiesView,
+    TodaysTasksView
+)
 
 urlpatterns = [
+    # --- Authentication ---
     path("register/", RegisterView.as_view(), name="register"),
-    path("login/", EmailTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("employee/stores/", EmployeeStoresView.as_view(), name="employee_stores"),
+    path("login/", EmailTokenObtainPairView.as_view(), name="login"),
+
+    # --- Employee Data Endpoints ---
+    path("employee/stores/", EmployeeStoresView.as_view(), name="employee-stores"),
+    
+    # --- Activity Endpoints ---
+    path("activities/today/", TodaysActivitiesView.as_view(), name="todays-activities"),
+    path("activities/create/", CreateActivityView.as_view(), name="create-activity"),
+    path("tasks/today/", TodaysTasksView.as_view(), name="todays-tasks"),
 ]

@@ -1,69 +1,166 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import CustomUser, Store, Employee
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import get_user_model
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=6)
+# Import models directly. It's safe here because they don't depend on serializers.
+from .models import Store, Employee, Activity, Company
 
+# Get the CustomUser model once. This is the recommended way.
+User = get_user_model()
+
+
+# --- User & Authentication Serializers ---
+
+
+# A simple serializer to display user data without the password.
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
-        fields = ["id", "name", "email", "password", "role"]
+        model = User
+        fields = ('id', 'name', 'email', 'role')
+
+# This is the new, corrected RegisterSerializer.
+# It is NOT a ModelSerializer, which breaks the circular dependency.
+class RegisterSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100, required=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(min_length=6, write_only=True, required=True)
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, default='employee')
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(
-            email=validated_data["email"],
-            name=validated_data["name"],
-            password=validated_data["password"],
-            role=validated_data.get("role", "employee"),
+        """
+        Create and return a new user.
+        """
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            name=validated_data['name'],
+            password=validated_data['password'],
+            role=validated_data['role']
         )
         return user
 
+
 class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = "email"   # 👈 This tells JWT to use email instead of username
-
     def validate(self, attrs):
-        # Extract email + password
-        email = attrs.get("email")
-        password = attrs.get("password")
-
-        if not email or not password:
-            raise serializers.ValidationError("Email and password are required.")
-
-        # Authenticate user
-        user = authenticate(request=self.context.get("request"),
-                            email=email, password=password)
-        if not user:
-            raise serializers.ValidationError("Invalid email or password.")
-
-        # Call the parent class validate to get tokens
+        # The default validation is sufficient if the USERNAME_FIELD is 'email'.
+        # We add custom data to the response.
         data = super().validate(attrs)
-
-        # Add custom user info if you want
+        
+        # Add custom claims
         data.update({
-            "user_id": user.id,
-            "name": user.name,
-            "role": user.role,
-            "email": user.email,
+            "user_id": self.user.id,
+            "name": self.user.name,
+            "role": self.user.role,
+            "email": self.user.email,
         })
-
         return data
 
-# -------------------------
-# New: Store Serializer
-# -------------------------
+
+# --- Application Data Serializers ---
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = '__all__'
+
+
 class StoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Store
-        fields = ["store_id", "store_information", "latitude", "longitude"]
+        fields = ["store_id", "store_information", "location", "latitude", "longitude", "company"]
 
 
-# -------------------------
-# New: Employee Serializer (optional, if needed)
-# -------------------------
-class EmployeeSerializer(serializers.ModelSerializer):
-    stores = StoreSerializer(many=True, read_only=True)
+class ActivitySerializer(serializers.ModelSerializer):
+    # Make the response more user-friendly by including the store name
+    store_name = serializers.CharField(source='store.store_information', read_only=True)
+    
+    class Meta:
+        model = Activity
+        fields = ['id', 'employee', 'store', 'store_name', 'remarks', 'created_at']
+        read_only_fields = ['employee'] # Employee is set from the request user
+
+class EmployeeTaskSerializer(serializers.ModelSerializer):
+    store = StoreSerializer(read_only=True) # Nest the store detailsfrom rest_framework import serializers
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import get_user_model
+
+# Import models directly.
+from .models import Store, Employee, Activity, Company, EmployeeTask # <--- Make sure EmployeeTask is imported
+
+# Get the CustomUser model once.
+User = get_user_model()
+
+
+# --- User & Authentication Serializers ---
+
+# A simple serializer to display user data without the password.
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'name', 'email', 'role')
+
+# This is the new, corrected RegisterSerializer.
+class RegisterSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100, required=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(min_length=6, write_only=True, required=True)
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, default='employee')
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            name=validated_data['name'],
+            password=validated_data['password'],
+            role=validated_data['role']
+        )
+        return user
+
+
+class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        
+        data.update({
+            "user_id": self.user.id,
+            "name": self.user.name,
+            "role": self.user.role,
+            "email": self.user.email,
+        })
+        return data
+
+
+# --- Application Data Serializers ---
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = '__all__'
+
+
+class StoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Store
+        fields = ["store_id", "store_information", "location", "latitude", "longitude", "company"]
+
+
+class ActivitySerializer(serializers.ModelSerializer):
+    store_name = serializers.CharField(source='store.store_information', read_only=True)
+    
+    class Meta:
+        model = Activity
+        fields = ['id', 'employee', 'store', 'store_name', 'remarks', 'created_at']
+        read_only_fields = ['employee']
+
+
+# --- ADD THIS NEW SERIALIZER AT THE END ---
+class EmployeeTaskSerializer(serializers.ModelSerializer):
+    store = StoreSerializer(read_only=True)
+    
+    class Meta:
+        model = EmployeeTask
+        fields = ['id', 'store', 'sequence_order', 'status', 'task_date']
 
     class Meta:
-        model = Employee
-        fields = ["emp_id", "emp_name", "stores"]
+        model = EmployeeTask
+        fields = ['id', 'store', 'sequence_order', 'status', 'task_date']        

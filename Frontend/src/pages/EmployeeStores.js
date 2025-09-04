@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function EmployeeStores() {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("access"); // or wherever you keep it
+  const token = localStorage.getItem("access"); // JWT token
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -39,16 +41,31 @@ export default function EmployeeStores() {
   return (
     <div style={{ padding: 16 }}>
       <h2>Your Stores</h2>
+
+      {/* Back button */}
+      <button onClick={() => navigate("/dashboard")} style={{ marginBottom: 16 }}>
+        ← Back to Dashboard
+      </button>
+
       <ul style={{ listStyle: "none", padding: 0 }}>
         {stores.map((s) => (
-          <li key={s.store_id} style={{ marginBottom: 12, border: "1px solid #ddd", padding: 12, borderRadius: 8 }}>
+          <li
+            key={s.store_id}
+            style={{ marginBottom: 12, border: "1px solid #ddd", padding: 12, borderRadius: 8 }}
+          >
             <div><strong>{s.store_information}</strong></div>
             <div>Lat: {s.latitude ?? "N/A"} | Lng: {s.longitude ?? "N/A"}</div>
             <div style={{ marginTop: 8 }}>
-              <button onClick={() => openMaps(s.latitude, s.longitude)} disabled={s.latitude == null || s.longitude == null}>
+              <button
+                onClick={() => openMaps(s.latitude, s.longitude)}
+                disabled={s.latitude == null || s.longitude == null}
+              >
                 Open in Google Maps
               </button>{" "}
-              <button onClick={() => openDirections(s.latitude, s.longitude)} disabled={s.latitude == null || s.longitude == null}>
+              <button
+                onClick={() => openDirections(s.latitude, s.longitude)}
+                disabled={s.latitude == null || s.longitude == null}
+              >
                 Directions
               </button>
             </div>

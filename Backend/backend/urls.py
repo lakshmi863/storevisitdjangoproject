@@ -18,6 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("accounts/", include("accounts.urls")),  # 👈 instead of "api/auth/"
+    path("admin/", admin.site.urls), # <-- COMMENT THIS LINE OUT TOO
+    path("accounts/", include("accounts.urls")),
 ]
