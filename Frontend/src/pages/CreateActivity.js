@@ -17,7 +17,7 @@ const CreateActivity = () => {
     useEffect(() => {
         const fetchStores = async () => {
             try {
-                const res = await axios.get('https://storevisitdjangoproject-demo-gozn.onrender.com/accounts/employee/stores/', {
+                const res = await axios.get('https://storevisitdjangoproject-demo-task.onrender.com/accounts/employee/stores/', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setStores(res.data || []);
@@ -42,7 +42,7 @@ const CreateActivity = () => {
                 const { latitude, longitude } = position.coords;
                 setMessage('Verifying location and submitting...');
                 try {
-                    await axios.post('https://storevisitdjangoproject-demo-gozn.onrender.com/accounts/activities/create/', {
+                    await axios.post('https://storevisitdjangoproject-demo-task.onrender.com/accounts/activities/create/', {
                         store: selectedStore,
                         remarks,
                         latitude,

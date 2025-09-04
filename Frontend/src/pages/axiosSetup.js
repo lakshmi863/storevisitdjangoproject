@@ -26,7 +26,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refresh = localStorage.getItem("refresh");
-        const res = await axios.post("https://storevisitdjangoproject-demo-gozn.onrender.com/api/token/refresh/", {
+        const res = await axios.post("https://storevisitdjangoproject-demo-task.onrender.com/api/token/refresh/", {
           refresh,
         });
 

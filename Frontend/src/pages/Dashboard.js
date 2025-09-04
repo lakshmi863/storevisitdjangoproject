@@ -51,7 +51,8 @@ const Dashboard = () => {
                      View Today's Plan
                      </button>
                      </Link>
-                </div>
+                     </div>
+                    
                 
                 <div className="mb-6 text-right">
                     <Link to="/create-activity">
