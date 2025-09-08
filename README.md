@@ -12,6 +12,30 @@ This is a **full-stack web application** built with:
 
 ## 🚀 Project Architecture
 
+<img width="686" height="363" alt="image" src="https://github.com/user-attachments/assets/c64554d4-1bbb-4c9f-b670-8e9f7a66604f" />
+
+Dashboard view
+
+<img width="1372" height="557" alt="image" src="https://github.com/user-attachments/assets/b2e62fb0-5d55-41c9-9abe-87135ed0ef13" />
+
+create new activities 
+
+<img width="712" height="610" alt="create activity" src="https://github.com/user-attachments/assets/60151586-11ff-463f-880d-298d7d125fa9" />
+
+complete activity
+
+<img width="1132" height="417" alt="complete activity" src="https://github.com/user-attachments/assets/81335360-f7d6-4577-b8df-637d7f400b9b" />
+
+todays plan
+
+<img width="1256" height="375" alt="today plan " src="https://github.com/user-attachments/assets/39d13489-ccae-4890-9575-b17669a3588d" />
+
+out of range
+
+<img width="837" height="792" alt="out of range" src="https://github.com/user-attachments/assets/e3fe5c89-4b96-4793-b35f-a281081e912d" />
+
+
+
 ```mermaid
 flowchart LR
     A[Frontend\nReact + Tailwind] <--> B[Backend\nDjango + DRF]
