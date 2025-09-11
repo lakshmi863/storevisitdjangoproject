@@ -45,7 +45,7 @@ const Dashboard = () => {
             </header>
             <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
                 {/* --- MODIFIED SECTION --- */}
-                {/* A single container for all primary action buttons */}
+                {/* A single container for all primary action button */}
                 <div className="mb-6 flex flex-wrap justify-end gap-4">
                     
                     {/* Button to the new Live Map page */}

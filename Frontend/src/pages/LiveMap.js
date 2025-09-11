@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet'; // <-- Import Circle
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+//import L from 'leaflet';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,7 +38,7 @@ const LiveMap = () => {
                 console.error("Geolocation error:", error);
                 setLoading(false);
             },
-            geoOptions // Pass options to watchPosition
+            geoOptions // Pass options to watchPositions 
         );
 
         return () => navigator.geolocation.clearWatch(watchId);
