@@ -8,8 +8,6 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --- KEY PRODUCTION SETTINGS ---
-
 SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
@@ -21,7 +19,6 @@ ALLOWED_HOSTS = [
 if RENDER_EXTERNAL_HOSTNAME := os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# --- INSTALLED APPS (No changes) ---
 INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "django.contrib.admin",
@@ -29,17 +26,16 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
+    "django.contrib.staticfiles", # This is required
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
     "django_extensions",
 ]
 
-# --- MIDDLEWARE ---
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Correctly placed
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -49,63 +45,68 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# --- CORS & CSRF CONFIGURATION (CRITICAL CHANGES) ---
-
-# This list explicitly tells your backend which frontend domains are allowed to connect.
 CORS_ALLOWED_ORIGINS = [
     "https://storevisitdjangoproject-front-demo.onrender.com",
 ]
-# This line is required to allow cookies and authorization headers to be sent across domains.
-CORS_ALLOW_CREDENTIALS = True  # <-- ADD THIS LINE
-
-# For local development, this will allow your React server (localhost:3000) to connect.
+CORS_ALLOW_CREDENTIALS = True
 if DEBUG:
     CORS_ALLOWED_ORIGINS.append("http://localhost:3000")
 
-# This explicitly tells Django to trust your frontend for secure (POST/PUT/PATCH) requests.
 CSRF_TRUSTED_ORIGINS = [
     "https://storevisitdjangoproject-front-demo.onrender.com",
-] # <-- ADD THIS ENTIRE BLOCK
-
-# --- END OF CRITICAL CHANGES ---
+]
 
 ROOT_URLCONF = "backend.urls"
 
 TEMPLATES = [
-    # ... (no changes here) ...
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates", "DIRS": [], "APP_DIRS": True,
+        "OPTIONS": { "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
 ]
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-# --- DATABASE ---
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600,
     )
 }
 
-# --- PASSWORD VALIDATION (No changes) ---
 AUTH_PASSWORD_VALIDATORS = [
-    # ... (no changes here) ...
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# ... Internationalization (No changes) ...
 LANGUAGE_CODE = "en-us"
-# ...
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True
 
 # --- STATIC FILES ---
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# --- THIS IS THE CRITICAL CHANGE FOR THE 500 ERROR ---
+# We are changing the storage backend to a simpler, more reliable one for production.
+STATICFILES_STORAGE = "whitenoise.storage.WhiteNoiseStorage"
+
+# --- END OF CRITICAL CHANGE ---
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# --- DRF AND JWT SETTINGS (CRITICAL CHANGES) ---
 REST_FRAMEWORK = {
-    # We add SessionAuthentication here to help with CSRF handling across domains.
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        'rest_framework.authentication.SessionAuthentication', # <-- ADD THIS LINE
+        'rest_framework.authentication.SessionAuthentication',
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
@@ -116,8 +117,9 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    # ... (rest is unchanged)
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
-# --- END OF CRITICAL CHANGES ---
 
 AUTH_USER_MODEL = "accounts.CustomUser"
