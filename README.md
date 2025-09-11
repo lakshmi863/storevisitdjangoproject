@@ -1,5 +1,9 @@
 # Store Visit Django + React Project
 
+web site link frontend( https://storevisitdjangoproject-front-demo.onrender.com )
+web site link backend (  https://storevisitdjangoproject-backend-demo.onrender.com/admin/login/?next=/admin/)
+
+
 This is a **full-stack web application** built with:
 
 - **Frontend:** React.js + Tailwind CSS
