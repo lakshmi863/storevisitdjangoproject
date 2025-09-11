@@ -30,6 +30,11 @@ todays plan
 
 <img width="1256" height="375" alt="today plan " src="https://github.com/user-attachments/assets/39d13489-ccae-4890-9575-b17669a3588d" />
 
+Live map update:
+
+<img width="1077" height="767" alt="image" src="https://github.com/user-attachments/assets/e672efdd-0fdf-4b84-b23f-ae1ad82931ef" />
+
+
 out of range
 
 <img width="837" height="792" alt="out of range" src="https://github.com/user-attachments/assets/e3fe5c89-4b96-4793-b35f-a281081e912d" />
