@@ -74,7 +74,7 @@ const LiveMap = () => {
             if (!token) { navigate('/login'); return; }
             try {
                 // Change the endpoint to get the list with visit statuses
-                const response = await axios.get('http://127.0.0.1:8000/accounts/tasks/today/', {
+                const response = await axios.get('https://storevisitdjangoproject-backend-demo.onrender.com/accounts/tasks/today/', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setTasks(response.data || []);

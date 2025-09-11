@@ -26,7 +26,7 @@ const CreateActivity = () => {
         const fetchTodaysTasks = async () => {
             if (!token) { navigate('/login'); return; }
             try {
-                const res = await axios.get('http://127.0.0.1:8000/accounts/tasks/today/', {
+                const res = await axios.get('https://storevisitdjangoproject-backend-demo.onrender.com/accounts/tasks/today/', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -80,7 +80,7 @@ const CreateActivity = () => {
                 setLocationAccuracy(accuracy);
                 setMessage('Verifying location and submitting...');
                 try {
-                    await axios.post('http://127.0.0.1:8000/accounts/activities/create/', {
+                    await axios.post('https://storevisitdjangoproject-backend-demo.onrender.com/accounts/activities/create/', {
                         store: selectedStoreId, // Use the validated selectedStoreId
                         remarks,
                         latitude,
