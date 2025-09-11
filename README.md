@@ -12,12 +12,11 @@ This is a **full-stack web application** built with:
 
 ## 🚀 Project Architecture
 
-<img width="1277" height="287" alt="image" src="https://github.com/user-attachments/assets/445cf65e-6b09-4da3-a853-3b6dc1f5d055" />
+
 
 
 Dashboard view
-
-<img width="1372" height="557" alt="image" src="https://github.com/user-attachments/assets/b2e62fb0-5d55-41c9-9abe-87135ed0ef13" />
+<img width="1277" height="287" alt="image" src="https://github.com/user-attachments/assets/445cf65e-6b09-4da3-a853-3b6dc1f5d055" />
 
 create new activities 
 
