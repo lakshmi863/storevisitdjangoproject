@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://storevisitdjangoproject-demo-task.onrender.com/",
+  baseURL: "http://127.0.0.1:8000/",
 });
 
 // Attach access token to every request
@@ -26,7 +26,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refresh = localStorage.getItem("refresh");
-        const res = await axios.post("https://storevisitdjangoproject-demo-task.onrender.com/api/token/refresh/", {
+        const res = await axios.post("http://127.0.0.1:8000/api/token/refresh/", {
           refresh,
         });
 

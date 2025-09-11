@@ -9,17 +9,24 @@ const CreateActivity = () => {
     const [selectedStore, setSelectedStore] = useState('');
     const [remarks, setRemarks] = useState('');
     const [error, setError] = useState('');
-    const [message, setMessage] = useState(''); // For user feedback
+    const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
     const token = localStorage.getItem('access');
 
+    // --- NEW: State to hold location accuracy ---
+    const [locationAccuracy, setLocationAccuracy] = useState(null);
+
     useEffect(() => {
         const fetchStores = async () => {
             try {
-                const res = await axios.get('https://storevisitdjangoproject-demo-task.onrender.com/accounts/employee/stores/', {
+                const res = await axios.get('http://127.0.0.1:8000/accounts/employee/stores/', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+
+                // Your debugging line - this is good to keep for testing!
+                console.log("Stores List:", res.data);
+
                 setStores(res.data || []);
                 if (res.data && res.data.length > 0) {
                     setSelectedStore(res.data[0].store_id);
@@ -35,21 +42,37 @@ const CreateActivity = () => {
         event.preventDefault();
         setError('');
         setMessage('Getting your current location...');
+        setLocationAccuracy(null); // Reset accuracy display on each attempt
         setIsSubmitting(true);
+
+        // --- NEW: High-accuracy geolocation options ---
+        const geoOptions = {
+            enableHighAccuracy: true, // Prioritize accuracy
+            timeout: 15000,           // Give it up to 15 seconds
+            maximumAge: 0             // Force a fresh location reading
+        };
 
         navigator.geolocation.getCurrentPosition(
             async (position) => {
-                const { latitude, longitude } = position.coords;
+                // Now we also get 'accuracy' from the position object
+                const { latitude, longitude, accuracy } = position.coords;
+
+                // Update the state to display the accuracy to the user
+                setLocationAccuracy(accuracy);
+                
+                // Your existing debugging log, now with accuracy
+                console.log(`📍 Your current reported location is:`, { latitude, longitude, accuracy });
+                
                 setMessage('Verifying location and submitting...');
                 try {
-                    await axios.post('https://storevisitdjangoproject-demo-task.onrender.com/accounts/activities/create/', {
+                    await axios.post('http://127.0.0.1:8000/accounts/activities/create/', {
                         store: selectedStore,
                         remarks,
                         latitude,
                         longitude,
                     }, { headers: { Authorization: `Bearer ${token}` } });
                     
-                    navigate('/'); // Success! Redirect to dashboard.
+                    navigate('/'); // Success!
                 } catch (err) {
                     setError(err.response?.data?.error || 'An unexpected error occurred.');
                     setMessage('');
@@ -62,7 +85,7 @@ const CreateActivity = () => {
                 setMessage('');
                 setIsSubmitting(false);
             },
-            { enableHighAccuracy: true, timeout: 15000 }
+            geoOptions // Pass the new high-accuracy options here
         );
     };
 
@@ -74,8 +97,20 @@ const CreateActivity = () => {
                     &larr; Back to Dashboard
                 </button>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {message && !error && <p className="text-sm text-center text-blue-600 bg-blue-100 p-3 rounded-md">{message}</p>}
+                    {/* --- MODIFIED: Message area now shows accuracy when available --- */}
+                    {message && !error && (
+                        <div className="text-sm text-center text-blue-600 bg-blue-100 p-3 rounded-md">
+                            <p>{message}</p>
+                            {locationAccuracy && (
+                                <p className="mt-1 font-semibold">
+                                    Location Accuracy: {locationAccuracy.toFixed(0)} meters
+                                </p>
+                            )}
+                        </div>
+                    )}
                     {error && <p className="text-sm text-center text-red-600 bg-red-100 p-3 rounded-md">{error}</p>}
+                    
+                    {/* The rest of the form remains the same */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">Select Store</label>
                         <select

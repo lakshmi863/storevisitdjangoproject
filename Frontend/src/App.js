@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import CreateActivity from "./pages/CreateActivity";
 import PrivateRoute from "./components/PrivateRoute";
 import TodaysTasks from "./pages/TodaysTasks"; // <-- 1. MAKE SURE THIS IMPORT IS HERE
+import LiveMap from "./pages/LiveMap"; 
 
 function App() {
   return (
@@ -22,7 +23,9 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/create-activity" element={<CreateActivity />} />
             {/* THIS IS THE MISSING LINE */}
-            <Route path="/tasks" element={<TodaysTasks />} /> {/* <-- 2. ADD THIS LINE */}
+            <Route path="/tasks" element={<TodaysTasks />} /> 
+            
+            <Route path="/live-map" element={<LiveMap />} />{/* <-- 2. ADD THIS LINE */}
           </Route>
 
         </Routes>

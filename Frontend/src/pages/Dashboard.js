@@ -13,7 +13,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchTodaysActivities = async () => {
             try {
-                const response = await axios.get('https://storevisitdjangoproject-demo-task.onrender.com/accounts/activities/today/', {
+                const response = await axios.get('http://127.0.0.1:8000/accounts/activities/today/', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setActivities(response.data);
@@ -44,23 +44,34 @@ const Dashboard = () => {
                 </div>
             </header>
             <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
-                <div className="mb-6 flex justify-end space-x-4">
-             {/* The new button for viewing tasks */}
-               <Link to="/tasks">
-                <button className="py-2 px-6 text-base font-medium text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-600">
-                     View Today's Plan
-                     </button>
-                     </Link>
-                     </div>
+                {/* --- MODIFIED SECTION --- */}
+                {/* A single container for all primary action buttons */}
+                <div className="mb-6 flex flex-wrap justify-end gap-4">
                     
-                
-                <div className="mb-6 text-right">
+                    {/* Button to the new Live Map page */}
+                    <Link to="/live-map">
+                        <button className="py-2 px-6 text-base font-medium text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600">
+                            View Live Map
+                        </button>
+                    </Link>
+
+                    {/* Button to view the daily plan */}
+                    <Link to="/tasks">
+                        <button className="py-2 px-6 text-base font-medium text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-600">
+                            View Today's Plan
+                        </button>
+                    </Link>
+                    
+                    {/* Button to create a new activity */}
                     <Link to="/create-activity">
                         <button className="py-2 px-6 text-base font-medium text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700">
                             + Create New Activity
                         </button>
                     </Link>
+
                 </div>
+                {/* --- END OF MODIFICATION --- */}
+
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">Today's Activities</h2>
                     {loading ? (

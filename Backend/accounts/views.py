@@ -78,10 +78,13 @@ class CreateActivityView(APIView):
         except (ValueError, TypeError):
              return Response({"error": "Invalid or missing location coordinates for the store or user."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # --- MODIFIED SECTION ---
+        # The distance check is now 2000 meters instead of 100.
         if distance > 100:
             return Response({
-                "error": f"You cannot log this activity. You are approximately {int(distance)} meters away from the store."
+                "error": f"You cannot log this activity. You are approximately {int(distance)} meters away, and the maximum allowed distance is 100 meters."
             }, status=status.HTTP_403_FORBIDDEN)
+        # --- END OF MODIFICATION ---
             
         activity_data = {
             'employee': employee.pk,
@@ -130,6 +133,7 @@ class TodaysActivitiesView(generics.ListAPIView):
             return Activity.objects.filter(employee=employee, created_at__date=today).order_by('-created_at')
         except Employee.DoesNotExist:
             return Activity.objects.none()
+
 # -------------------------------
 # GET List of Today's Tasks for the Logged-in Employee
 # -------------------------------
@@ -143,4 +147,4 @@ class TodaysTasksView(generics.ListAPIView):
             today = timezone.now().date()
             return EmployeeTask.objects.filter(employee=employee, task_date=today)
         except Employee.DoesNotExist:
-            return EmployeeTask.objects.none()        
+            return EmployeeTask.objects.none()

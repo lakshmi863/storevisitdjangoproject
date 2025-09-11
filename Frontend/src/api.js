@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://storevisitdjangoproject-demo-task.onrender.com/",
+  baseURL: "http://127.0.0.1:8000/api/",
 });
 
 // Add token to headers automatically
