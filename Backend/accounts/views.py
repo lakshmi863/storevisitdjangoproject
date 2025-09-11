@@ -1,3 +1,5 @@
+# backend/accounts/views.py
+
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
@@ -6,8 +8,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.utils import timezone
 from geopy.distance import geodesic
 
+# --- 1. ADD THESE TWO IMPORTS AT THE TOP ---
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
 # Import Models used in this file
-from .models import CustomUser, Employee, Store, Activity,EmployeeTask 
+from .models import CustomUser, Employee, Store, Activity, EmployeeTask 
 
 # Import Serializers used in this file
 from .serializers import (
@@ -19,24 +25,22 @@ from .serializers import (
 )
 
 # -------------------------------
-# User Registration
+# User Registration (No changes)
 # -------------------------------
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
-
 # -------------------------------
-# User Login
+# User Login (No changes)
 # -------------------------------
 class EmailTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = EmailTokenObtainPairSerializer
 
-
 # -------------------------------
-# GET List of Stores for the Logged-in Employee
+# GET List of Stores for the Logged-in Employee (No changes to this one yet)
 # -------------------------------
 class EmployeeStoresView(generics.ListAPIView):
     serializer_class = StoreSerializer
@@ -48,9 +52,8 @@ class EmployeeStoresView(generics.ListAPIView):
         except Employee.DoesNotExist:
             return Store.objects.none()
 
-
 # -------------------------------
-# POST a New Activity (with Geolocation Check)
+# POST a New Activity (No changes)
 # -------------------------------
 class CreateActivityView(APIView):
     permission_classes = [IsAuthenticated]
@@ -77,51 +80,33 @@ class CreateActivityView(APIView):
             distance = geodesic(user_location, store_location).meters
         except (ValueError, TypeError):
              return Response({"error": "Invalid or missing location coordinates for the store or user."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # --- MODIFIED SECTION ---
-        # The distance check is now 2000 meters instead of 100.
+             
         if distance > 100:
             return Response({
-                "error": f"You cannot log this activity. You are approximately {int(distance)} meters away, and the maximum allowed distance is 100 meters."
+                "error": f"You are approximately {int(distance)} meters away, and the maximum allowed distance is 100 meters."
             }, status=status.HTTP_403_FORBIDDEN)
-        # --- END OF MODIFICATION ---
             
-        activity_data = {
-            'employee': employee.pk,
-            'store': store.pk,
-            'remarks': remarks,
-        }
-        
+        activity_data = {'employee': employee.pk, 'store': store.pk, 'remarks': remarks}
         serializer = ActivitySerializer(data=activity_data)
-        if serializer.is_valid():
-            serializer.save(employee=employee) # The activity is created here
 
-            # --- START: NEW LOGIC TO UPDATE THE TASK ---
-            # Now that the activity is saved, find today's task for this
-            # employee and store, and mark it as 'completed'.
+        if serializer.is_valid():
+            serializer.save(employee=employee)
             try:
                 today = timezone.now().date()
-                task = EmployeeTask.objects.get(
-                    employee=employee,
-                    store=store,
-                    task_date=today,
-                    status='pending'  # Only update tasks that are still pending
-                )
+                task = EmployeeTask.objects.get(employee=employee, store=store, task_date=today, status='pending')
                 task.status = 'completed'
                 task.save()
             except EmployeeTask.DoesNotExist:
-                # This is not an error. It just means the employee made a visit
-                # that was not on their official task list. We can just ignore this.
                 pass 
-            # --- END: NEW LOGIC ---
-                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 # -------------------------------
 # GET List of Today's Activities for the Logged-in Employee
 # -------------------------------
+# --- 2. ADD THIS DECORATOR LINE ABOVE THE CLASS ---
+@method_decorator(csrf_exempt, name='dispatch')
 class TodaysActivitiesView(generics.ListAPIView):
     serializer_class = ActivitySerializer
     permission_classes = [IsAuthenticated]
@@ -137,6 +122,8 @@ class TodaysActivitiesView(generics.ListAPIView):
 # -------------------------------
 # GET List of Today's Tasks for the Logged-in Employee
 # -------------------------------
+# --- 3. ADD THIS DECORATOR LINE ABOVE THE CLASS ---
+@method_decorator(csrf_exempt, name='dispatch')
 class TodaysTasksView(generics.ListAPIView):
     serializer_class = EmployeeTaskSerializer
     permission_classes = [IsAuthenticated]
